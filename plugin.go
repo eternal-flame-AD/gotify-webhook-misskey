@@ -272,7 +272,7 @@ func (c *MisskeyHookPlugin) GetDisplay(location *url.URL) string {
 
 	for _, source := range c.config.Sources {
 		thisLoc := loc.ResolveReference(&url.URL{
-			Path: fmt.Sprintf("hook/misskey/%s", source.Slug),
+			Path: fmt.Sprintf("push/misskey/%s", source.Slug),
 		})
 		data.Sources = append(data.Sources, struct {
 			Name   string

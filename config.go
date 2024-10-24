@@ -49,8 +49,7 @@ func randomSecret() string {
 
 func allAlnum(s string) bool {
 	for _, r := range s {
-		if (r < 'A' || r > 'Z') && (r < 'a' || r > 'z') && (r < '0' || r > '9') {
-			return false
+		if (r < 'A' || r > 'Z') && (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '_' && r != '-' && r != ':' && r != '.' {
 		}
 	}
 	return true
@@ -60,7 +59,7 @@ func (c *Config) Validate() error {
 	var errs []error
 	for _, source := range c.Sources {
 		if !allAlnum(source.Slug) {
-			errs = append(errs, fmt.Errorf("source %s has invalid slug, only alnum characters are allowed", source.Slug))
+			errs = append(errs, fmt.Errorf("source %s has invalid slug, only alnum, _-:. characters are allowed", source.Slug))
 		}
 		if source.Secret == "" {
 			errs = append(errs, fmt.Errorf("source %s has no secret, what about %s?", source.Slug, randomSecret()))
