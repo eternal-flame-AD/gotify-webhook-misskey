@@ -1,6 +1,6 @@
 # gotify-website-misskey
 
-Gotify Misskey Webhook Bridge
+Gotify Misskey Webhook Bridge (Alpha stage)
 
 ![Screenshot](assets/screenshot.png)
 
