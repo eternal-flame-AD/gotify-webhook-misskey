@@ -48,8 +48,8 @@ func (p *WebhookPayload[T]) CreatedAtDate() time.Time {
 }
 
 type NoteRelatedWebhookPayloadBody struct {
-	ID   string  `json:"id,omitempty"`
-	Text *string `json:"text,omitempty"`
+	ID   string `json:"id,omitempty"`
+	Text string `json:"text,omitempty"`
 
 	Mentions *[]string `json:"mentions,omitempty"`
 

@@ -74,6 +74,13 @@ func escapeMarkdown(s string) string {
 	).Replace(s)
 }
 
+func truncateString(s string, length int) string {
+	if len(s) > length {
+		return s[:length] + "..."
+	}
+	return s
+}
+
 // RegisterWebhook implements plugin.Webhooker.
 func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup) {
 	c.basePath = basePath
@@ -110,7 +117,7 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 		if payload.Body.Note != nil {
 			post := payload.Body.Note
 
-			title := fmt.Sprintf("[%s] [%s] %s", payload.Type, src.Name, post.ID)
+			title := fmt.Sprintf("[%s] [%s] %s: %s", payload.Type, src.Name, post.User.UserNameFull(), truncateString(post.Text, 50))
 
 			var url string
 			if payload.Server != "" {
@@ -123,10 +130,8 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 
 			if post.Cw != nil {
 				message.WriteString(fmt.Sprintf("CW: %s\n\n", escapeMarkdown(*post.Cw)))
-			} else if post.Text != nil {
-				message.WriteString(escapeMarkdown(*post.Text))
 			} else {
-				message.WriteString("<missing content>")
+				message.WriteString(escapeMarkdown(post.Text))
 			}
 
 			if post.Reply != nil {
@@ -136,10 +141,8 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 
 				if post.Reply.Cw != nil {
 					message.WriteString(fmt.Sprintf("CW: %s\n\n", escapeMarkdown(*post.Reply.Cw)))
-				} else if post.Reply.Text != nil {
-					message.WriteString(escapeMarkdown(*post.Reply.Text))
 				} else {
-					message.WriteString("<missing content>")
+					message.WriteString(escapeMarkdown(post.Reply.Text))
 				}
 
 				message.WriteString("\n\n---\n\n")
@@ -152,10 +155,8 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 
 				if post.Renote.Cw != nil {
 					message.WriteString(fmt.Sprintf("CW: %s\n\n", escapeMarkdown(*post.Renote.Cw)))
-				} else if post.Renote.Text != nil {
-					message.WriteString(escapeMarkdown(*post.Renote.Text))
 				} else {
-					message.WriteString("<missing content>")
+					message.WriteString(escapeMarkdown(post.Renote.Text))
 				}
 
 				message.WriteString("\n\n---\n\n")
