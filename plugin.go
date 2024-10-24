@@ -15,7 +15,7 @@ import (
 func GetGotifyPluginInfo() plugin.Info {
 	return plugin.Info{
 		ModulePath:  "github.com/eternal-flame-ad/gotify-webhook-misskey",
-		Version:     "1.0.0",
+		Version:     "0.1.1",
 		Author:      "eternal-flame-ad <yume@yumechi.jp>",
 		Website:     "https://github.com/eternal-flame-ad/gotify-webhook-misskey",
 		Description: "Webhook Bridge for Misskey",
