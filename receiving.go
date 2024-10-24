@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 type WebhookUser struct {
@@ -27,7 +28,27 @@ func (u *WebhookUser) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, u)
 }
 
-type NoteRelatedWebhookPayload struct {
+type WebhookPayload[T any] struct {
+	Server  string `json:"server,omitempty"`
+	Type    string `json:"type,omitempty"`
+	HookID  string `json:"hookId,omitempty"`
+	UserID  string `json:"userId,omitempty"`
+	EventID string `json:"eventId,omitempty"`
+
+	CreatedAt uint64 `json:"createdAt,omitempty"`
+
+	Body T `json:"body,omitempty"`
+}
+
+func (p *WebhookPayload[T]) CreatedAtUnix() int64 {
+	return int64(p.CreatedAt / 1000)
+}
+
+func (p *WebhookPayload[T]) CreatedAtDate() time.Time {
+	return time.UnixMilli(int64(p.CreatedAt))
+}
+
+type NoteRelatedWebhookPayloadBody struct {
 	ID   string  `json:"id,omitempty"`
 	Text *string `json:"text,omitempty"`
 
@@ -55,7 +76,7 @@ type NoteRelatedWebhookPayload struct {
 	ThreadId *string `json:"threadId,omitempty"`
 }
 
-type AbuseReportWebhookPayload struct {
+type AbuseReportWebhookPayloadBody struct {
 	ID string `json:"id,omitempty"`
 
 	TargetUserId string      `json:"targetUserId,omitempty"`

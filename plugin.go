@@ -100,22 +100,16 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 			return
 		}
 
-		var post NoteRelatedWebhookPayload
+		var payload WebhookPayload[NoteRelatedWebhookPayloadBody]
 
-		if err := ctx.BindJSON(&post); err != nil {
+		if err := ctx.BindJSON(&payload); err != nil {
 			ctx.JSON(400, gin.H{"error": "Invalid JSON"})
 			return
 		}
 
-		typeStr := "note"
+		post := payload.Body
 
-		if post.Renote != nil {
-			typeStr = "renote"
-		} else if post.Reply != nil {
-			typeStr = "reply"
-		}
-
-		title := fmt.Sprintf("Misskey %s from %s", typeStr, post.User.Name)
+		title := fmt.Sprintf("Misskey %s from %s", payload.Type, post.User.Name)
 
 		var url string
 		if src.BaseURL != "" {
@@ -185,12 +179,14 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 			return
 		}
 
-		var report AbuseReportWebhookPayload
+		var payload WebhookPayload[AbuseReportWebhookPayloadBody]
 
-		if err := ctx.BindJSON(&report); err != nil {
+		if err := ctx.BindJSON(&payload); err != nil {
 			ctx.JSON(400, gin.H{"error": "Invalid JSON"})
 			return
 		}
+
+		report := payload.Body
 
 		title := fmt.Sprintf("Misskey Abuse Report from %s", report.ID)
 
