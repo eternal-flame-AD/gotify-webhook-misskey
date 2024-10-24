@@ -8,6 +8,9 @@ import (
 )
 
 func TestAPICompatibility(t *testing.T) {
-	assert.Implements(t, (*plugin.Plugin)(nil), new(MyPlugin))
+	assert.Implements(t, (*plugin.Plugin)(nil), new(MisskeyHookPlugin))
 	// Add other interfaces you intend to implement here
+	assert.Implements(t, (*plugin.Webhooker)(nil), new(MisskeyHookPlugin))
+	assert.Implements(t, (*plugin.Configurer)(nil), new(MisskeyHookPlugin))
+	assert.Implements(t, (*plugin.Displayer)(nil), new(MisskeyHookPlugin))
 }
