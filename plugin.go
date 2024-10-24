@@ -20,7 +20,7 @@ func GetGotifyPluginInfo() plugin.Info {
 		Website:     "https://github.com/eternal-flame-ad/gotify-webhook-misskey",
 		Description: "Webhook Bridge for Misskey",
 		License:     "Apache-2.0",
-		Name:        "eternal-flame-ad/gotify-webhook-misskey",
+		Name:        "Gotify Misskey Webhook Bridge",
 	}
 }
 
@@ -356,7 +356,7 @@ Enabled: {{ .State.Enabled }}
 ### **{{ .Name }}** ({{ .Slug }})
 
 - Secret: {{ .Secret }}
-- URL: [{{ .URL }}]({{ .URL }}) (Append /abuse to receive abuse reports)
+- URL: [{{ .URL }}]({{ .URL }}) (Append /abuse to receive abuse reports, /follow to receive user follow events)
 
 {{ end }}
 		`)))
