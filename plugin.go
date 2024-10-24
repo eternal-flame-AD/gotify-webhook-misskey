@@ -112,8 +112,8 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 		title := fmt.Sprintf("Misskey %s from %s", payload.Type, post.User.Name)
 
 		var url string
-		if src.BaseURL != "" {
-			url = strings.TrimRight(src.BaseURL, "/") + "/notes/" + post.ID
+		if payload.Server != "" {
+			url = strings.TrimRight(payload.Server, "/") + "/notes/" + post.ID
 		}
 
 		var message bytes.Buffer
@@ -135,6 +135,79 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 			Extras: map[string]interface{}{
 				"misskey::payload": map[string]interface{}{
 					"note": post,
+				},
+				"client::display": map[string]interface{}{
+					"contentType": "text/markdown",
+				},
+			},
+		}
+
+		if url != "" {
+			msg.Extras["client::notification"] = map[string]interface{}{
+				"click": map[string]interface{}{
+					"url": url,
+				},
+			}
+		}
+
+		if err := c.msgHandler.SendMessage(msg); err != nil {
+			ctx.JSON(500, gin.H{"error": "Failed to send message"})
+			return
+		}
+	})
+
+	g.HEAD("/push/misskey/:slug/follow", func(ctx *gin.Context) {
+		ctx.SetAccepted("application/json")
+		ctx.Status(200)
+	})
+
+	g.GET("/push/misskey/:slug/follow", func(ctx *gin.Context) {
+		ctx.JSON(405, gin.H{"error": "Method Not Allowed"})
+	})
+
+	g.POST("/push/misskey/:slug/follow", func(ctx *gin.Context) {
+
+		secret := ctx.GetHeader("X-Misskey-Hook-Secret")
+
+		if secret == "" {
+			ctx.JSON(400, gin.H{"error": "Missing secret"})
+			return
+		}
+
+		src := c.config.GetSource(ctx.Param("slug"))
+
+		if src == nil || src.Secret == DummySecret || src.Secret != secret {
+			ctx.JSON(404, gin.H{"error": "Source not found or secret mismatch"})
+			return
+		}
+
+		var payload WebhookPayload[WebhookUser]
+
+		if err := ctx.BindJSON(&payload); err != nil {
+			ctx.JSON(400, gin.H{"error": "Invalid JSON"})
+			return
+		}
+
+		user := payload.Body
+
+		title := fmt.Sprintf("Misskey Follow from %s", user.Name)
+
+		var url string
+		if payload.Server != "" {
+			url = strings.TrimRight(payload.Server, "/") + "/users/" + user.ID
+		}
+
+		var message bytes.Buffer
+
+		message.WriteString(fmt.Sprintf("User: %s (%s)\n\n", escapeMarkdown(user.Name), escapeMarkdown(user.Username)))
+
+		msg := plugin.Message{
+			Title:    title,
+			Message:  message.String(),
+			Priority: 0,
+			Extras: map[string]interface{}{
+				"misskey::payload": map[string]interface{}{
+					"user": user,
 				},
 				"client::display": map[string]interface{}{
 					"contentType": "text/markdown",
@@ -191,8 +264,8 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 		title := fmt.Sprintf("Misskey Abuse Report from %s", report.ID)
 
 		var url string
-		if src.BaseURL != "" {
-			url = strings.TrimRight(src.BaseURL, "/") + "/admin/abuses"
+		if payload.Server != "" {
+			url = strings.TrimRight(payload.Server, "/") + "/admin/abuses"
 		}
 
 		var message bytes.Buffer

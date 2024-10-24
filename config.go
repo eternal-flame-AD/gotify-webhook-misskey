@@ -13,20 +13,18 @@ type Config struct {
 }
 
 type SourceConfig struct {
-	Slug    string `yaml:"slug"`
-	Name    string `yaml:"name"`
-	Secret  string `yaml:"secret"`
-	BaseURL string `yaml:"base_url"`
+	Slug   string `yaml:"slug"`
+	Name   string `yaml:"name"`
+	Secret string `yaml:"secret"`
 }
 
 func CreateDefaultConfig() Config {
 	return Config{
 		Sources: []SourceConfig{
 			{
-				Slug:    "me:me.com",
-				Name:    "Notification for @me@me.com",
-				Secret:  DummySecret,
-				BaseURL: "https://me.invalid/",
+				Slug:   "me:me.com",
+				Name:   "Notification for @me@me.com",
+				Secret: DummySecret,
 			},
 		},
 	}
