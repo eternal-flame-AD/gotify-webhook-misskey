@@ -49,7 +49,8 @@ func (c *MisskeyHookPlugin) Disable() error {
 }
 
 func (c *MisskeyHookPlugin) DefaultConfig() any {
-	return CreateDefaultConfig()
+	conf := CreateDefaultConfig()
+	return &conf
 }
 
 func (c *MisskeyHookPlugin) ValidateAndSetConfig(input any) error {
