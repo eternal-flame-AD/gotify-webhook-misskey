@@ -128,6 +128,22 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 			message.WriteString("<missing content>")
 		}
 
+		if post.Reply != nil {
+			message.WriteString("\n\n---\n\n")
+
+			message.WriteString(fmt.Sprintf("Parent: %s\n\n", escapeMarkdown(post.Reply.User.Name)))
+
+			if post.Reply.Cw != nil {
+				message.WriteString(fmt.Sprintf("CW: %s\n\n", escapeMarkdown(*post.Reply.Cw)))
+			} else if post.Reply.Text != nil {
+				message.WriteString(escapeMarkdown(*post.Reply.Text))
+			} else {
+				message.WriteString("<missing content>")
+			}
+
+			message.WriteString("\n\n---\n\n")
+		}
+
 		msg := plugin.Message{
 			Title:    title,
 			Message:  message.String(),

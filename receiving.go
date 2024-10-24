@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"time"
 )
 
@@ -14,18 +12,6 @@ type WebhookUser struct {
 	FollowersCount int    `json:"followersCount,omitempty"`
 	FollowingCount int    `json:"followingCount,omitempty"`
 	NotesCount     int    `json:"notesCount,omitempty"`
-}
-
-func (u *WebhookUser) UnmarshalJSON(b []byte) error {
-	var id string
-	if err := json.Unmarshal(b, &id); err == nil {
-		u.ID = id
-		u.Name = fmt.Sprintf("User %s", id)
-		u.UsernameLower = id
-		return nil
-	}
-
-	return json.Unmarshal(b, u)
 }
 
 type WebhookPayload[T any] struct {
@@ -60,8 +46,8 @@ type NoteRelatedWebhookPayloadBody struct {
 	Renote   *string `json:"renote,omitempty"`
 	RenoteId *string `json:"renoteId,omitempty"`
 
-	Reply   *string `json:"reply,omitempty"`
-	ReplyId *string `json:"replyId,omitempty"`
+	Reply   *NoteRelatedWebhookPayloadBody `json:"reply,omitempty"`
+	ReplyId *string                        `json:"replyId,omitempty"`
 
 	Name *string `json:"name,omitempty"`
 	Cw   *string `json:"cw,omitempty"`
