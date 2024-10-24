@@ -43,8 +43,8 @@ type NoteRelatedWebhookPayloadBody struct {
 	User   WebhookUser `json:"user,omitempty"`
 	UserId string      `json:"userId,omitempty"`
 
-	Renote   *string `json:"renote,omitempty"`
-	RenoteId *string `json:"renoteId,omitempty"`
+	Renote   *NoteRelatedWebhookPayloadBody `json:"renote,omitempty"`
+	RenoteId *string                        `json:"renoteId,omitempty"`
 
 	Reply   *NoteRelatedWebhookPayloadBody `json:"reply,omitempty"`
 	ReplyId *string                        `json:"replyId,omitempty"`

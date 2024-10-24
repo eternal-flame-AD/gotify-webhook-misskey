@@ -144,6 +144,22 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 			message.WriteString("\n\n---\n\n")
 		}
 
+		if post.Renote != nil {
+			message.WriteString("\n\n---\n\n")
+
+			message.WriteString(fmt.Sprintf("Renote of: %s\n\n", escapeMarkdown(post.Renote.User.Name)))
+
+			if post.Renote.Cw != nil {
+				message.WriteString(fmt.Sprintf("CW: %s\n\n", escapeMarkdown(*post.Renote.Cw)))
+			} else if post.Renote.Text != nil {
+				message.WriteString(escapeMarkdown(*post.Renote.Text))
+			} else {
+				message.WriteString("<missing content>")
+			}
+
+			message.WriteString("\n\n---\n\n")
+		}
+
 		msg := plugin.Message{
 			Title:    title,
 			Message:  message.String(),
