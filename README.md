@@ -18,11 +18,13 @@ sources:
   secret: xxxx
 ```
 
-2. Copy the Webhook URL and secret to Misskey (Settings -> Webhook)
+2. Copy the Webhook URL and secret to Misskey (Settings -> Webhook) Set the WebHook URL to receive any of 'replied to', 'renoted', 'mentioned', 'followed' (reactions seem to have bugs upstream and nothing is received)
 
-  a. Set the base URL to receive any of 'replied to', 'renoted', 'mentioned', 'followed' (reactions seem to have bugs upstream and nothing is received)
+3. Done! The on-click URL for notifications will also be populated when there is an User or Note associated with the notification.
 
-3. Done!
+## Notes
+
+- The mockup webhook call payload is incorrect, the actual payload is different. This is an upstream issue. Please test with a real event for now for the message to be generated correctly.
 
 ## License
 
