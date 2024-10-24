@@ -109,7 +109,7 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 
 		post := payload.Body
 
-		title := fmt.Sprintf("Misskey %s from %s", payload.Type, post.User.Name)
+		title := fmt.Sprintf("[%s] [%s] %s", payload.Type, src.Name, post.ID)
 
 		var url string
 		if payload.Server != "" {
@@ -222,7 +222,7 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 
 		user := payload.Body
 
-		title := fmt.Sprintf("Misskey Follow from %s", user.Name)
+		title := fmt.Sprintf("[%s] [%s] %s", payload.Type, src.Name, user.Name)
 
 		var url string
 		if payload.Server != "" {
@@ -293,7 +293,7 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 
 		report := payload.Body
 
-		title := fmt.Sprintf("Misskey Abuse Report from %s", report.ID)
+		title := fmt.Sprintf("[abuse] [%s] %s", src.Name, report.ID)
 
 		var url string
 		if payload.Server != "" {
