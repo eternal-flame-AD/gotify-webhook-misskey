@@ -9,14 +9,14 @@ import (
 const DummySecret = "ChangeMe"
 
 type Config struct {
-	Sources []SourceConfig `json:"sources"`
+	Sources []SourceConfig `yaml:"sources"`
 }
 
 type SourceConfig struct {
-	Slug    string `json:"slug"`
-	Name    string `json:"name"`
-	Secret  string `json:"secret"`
-	BaseURL string `json:"base_url"`
+	Slug    string `yaml:"slug"`
+	Name    string `yaml:"name"`
+	Secret  string `yaml:"secret"`
+	BaseURL string `yaml:"base_url"`
 }
 
 func CreateDefaultConfig() Config {

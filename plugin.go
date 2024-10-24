@@ -87,7 +87,7 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 
 		src := c.config.GetSource(ctx.Param("slug"))
 
-		if src == nil || src.Secret != secret {
+		if src == nil || src.Secret == DummySecret || src.Secret != secret {
 			ctx.JSON(404, gin.H{"error": "Source not found or secret mismatch"})
 			return
 		}
@@ -165,7 +165,7 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 
 		src := c.config.GetSource(ctx.Param("slug"))
 
-		if src == nil || src.Secret != secret {
+		if src == nil || src.Secret == DummySecret || src.Secret != secret {
 			ctx.JSON(404, gin.H{"error": "Source not found or secret mismatch"})
 			return
 		}
