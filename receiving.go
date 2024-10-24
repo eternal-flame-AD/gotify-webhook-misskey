@@ -9,9 +9,17 @@ type WebhookUser struct {
 	Username       string `json:"username,omitempty"`
 	UsernameLower  string `json:"usernameLower,omitempty"`
 	Name           string `json:"name,omitempty"`
+	Host           string `json:"host,omitempty"`
 	FollowersCount int    `json:"followersCount,omitempty"`
 	FollowingCount int    `json:"followingCount,omitempty"`
 	NotesCount     int    `json:"notesCount,omitempty"`
+}
+
+func (u *WebhookUser) UserNameFull() string {
+	if u.Host != "" {
+		return "@" + u.Username + "@" + u.Host
+	}
+	return "@" + u.Username
 }
 
 type WebhookPayload[T any] struct {
@@ -24,6 +32,11 @@ type WebhookPayload[T any] struct {
 	CreatedAt uint64 `json:"createdAt,omitempty"`
 
 	Body T `json:"body,omitempty"`
+}
+
+type UserPayload struct {
+	User *WebhookUser                   `json:"user,omitempty"`
+	Note *NoteRelatedWebhookPayloadBody `json:"note,omitempty"`
 }
 
 func (p *WebhookPayload[T]) CreatedAtUnix() int64 {

@@ -20,9 +20,7 @@ sources:
 
 2. Copy the Webhook URL and secret to Misskey (Settings -> Webhook)
 
-  a. Set the base URL to receive any of 'replied to', 'renoted', 'mentioned' (reactions seem to have bugs upstream and nothing is received)
-
-  b. Set the base URL plus `/follow` to receive 'followed' events
+  a. Set the base URL to receive any of 'replied to', 'renoted', 'mentioned', 'followed' (reactions seem to have bugs upstream and nothing is received)
 
 3. Done!
 

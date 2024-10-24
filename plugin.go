@@ -100,163 +100,140 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 			return
 		}
 
-		var payload WebhookPayload[NoteRelatedWebhookPayloadBody]
+		var payload WebhookPayload[UserPayload]
 
 		if err := ctx.BindJSON(&payload); err != nil {
 			ctx.JSON(400, gin.H{"error": "Invalid JSON"})
 			return
 		}
 
-		post := payload.Body
+		if payload.Body.Note != nil {
+			post := payload.Body.Note
 
-		title := fmt.Sprintf("[%s] [%s] %s", payload.Type, src.Name, post.ID)
+			title := fmt.Sprintf("[%s] [%s] %s", payload.Type, src.Name, post.ID)
 
-		var url string
-		if payload.Server != "" {
-			url = strings.TrimRight(payload.Server, "/") + "/notes/" + post.ID
-		}
+			var url string
+			if payload.Server != "" {
+				url = strings.TrimRight(payload.Server, "/") + "/notes/" + post.ID
+			}
 
-		var message bytes.Buffer
+			var message bytes.Buffer
 
-		message.WriteString(fmt.Sprintf("User: %s (%s)\n\n", escapeMarkdown(post.User.Name), escapeMarkdown(post.User.Username)))
+			message.WriteString(fmt.Sprintf("User: %s (%s)\n\n", escapeMarkdown(post.User.Name), escapeMarkdown(post.User.Username)))
 
-		if post.Cw != nil {
-			message.WriteString(fmt.Sprintf("CW: %s\n\n", escapeMarkdown(*post.Cw)))
-		} else if post.Text != nil {
-			message.WriteString(escapeMarkdown(*post.Text))
+			if post.Cw != nil {
+				message.WriteString(fmt.Sprintf("CW: %s\n\n", escapeMarkdown(*post.Cw)))
+			} else if post.Text != nil {
+				message.WriteString(escapeMarkdown(*post.Text))
+			} else {
+				message.WriteString("<missing content>")
+			}
+
+			if post.Reply != nil {
+				message.WriteString("\n\n---\n\n")
+
+				message.WriteString(fmt.Sprintf("Parent: %s\n\n", escapeMarkdown(post.Reply.User.Name)))
+
+				if post.Reply.Cw != nil {
+					message.WriteString(fmt.Sprintf("CW: %s\n\n", escapeMarkdown(*post.Reply.Cw)))
+				} else if post.Reply.Text != nil {
+					message.WriteString(escapeMarkdown(*post.Reply.Text))
+				} else {
+					message.WriteString("<missing content>")
+				}
+
+				message.WriteString("\n\n---\n\n")
+			}
+
+			if post.Renote != nil {
+				message.WriteString("\n\n---\n\n")
+
+				message.WriteString(fmt.Sprintf("Renote of: %s\n\n", escapeMarkdown(post.Renote.User.Name)))
+
+				if post.Renote.Cw != nil {
+					message.WriteString(fmt.Sprintf("CW: %s\n\n", escapeMarkdown(*post.Renote.Cw)))
+				} else if post.Renote.Text != nil {
+					message.WriteString(escapeMarkdown(*post.Renote.Text))
+				} else {
+					message.WriteString("<missing content>")
+				}
+
+				message.WriteString("\n\n---\n\n")
+			}
+
+			msg := plugin.Message{
+				Title:    title,
+				Message:  message.String(),
+				Priority: 0,
+				Extras: map[string]interface{}{
+					"misskey::payload": map[string]interface{}{
+						"note": post,
+					},
+					"client::display": map[string]interface{}{
+						"contentType": "text/markdown",
+					},
+				},
+			}
+
+			if url != "" {
+				msg.Extras["client::notification"] = map[string]interface{}{
+					"click": map[string]interface{}{
+						"url": url,
+					},
+				}
+			}
+
+			if err := c.msgHandler.SendMessage(msg); err != nil {
+				ctx.JSON(500, gin.H{"error": "Failed to send message"})
+				return
+			}
+		} else if payload.Body.User != nil {
+			user := payload.Body.User
+
+			title := fmt.Sprintf("[%s] [%s] %s", payload.Type, src.Name, user.UserNameFull())
+
+			var url string
+
+			if payload.Server != "" {
+				url = strings.TrimRight(payload.Server, "/") + "/" + user.UserNameFull()
+			}
+
+			var message bytes.Buffer
+
+			message.WriteString(fmt.Sprintf("User: %s (%s)\n\n", escapeMarkdown(user.Name), escapeMarkdown(user.Username)))
+
+			message.WriteString(fmt.Sprintf("Followers: %d\n", user.FollowersCount))
+			message.WriteString(fmt.Sprintf("Following: %d\n", user.FollowingCount))
+			message.WriteString(fmt.Sprintf("Notes: %d\n", user.NotesCount))
+
+			msg := plugin.Message{
+				Title:    title,
+				Message:  message.String(),
+				Priority: 0,
+				Extras: map[string]interface{}{
+					"misskey::payload": map[string]interface{}{
+						"user": user,
+					},
+					"client::display": map[string]interface{}{
+						"contentType": "text/markdown",
+					},
+				},
+			}
+
+			if url != "" {
+				msg.Extras["client::notification"] = map[string]interface{}{
+					"click": map[string]interface{}{
+						"url": url,
+					},
+				}
+			}
+
+			if err := c.msgHandler.SendMessage(msg); err != nil {
+				ctx.JSON(500, gin.H{"error": "Failed to send message"})
+				return
+			}
 		} else {
-			message.WriteString("<missing content>")
-		}
-
-		if post.Reply != nil {
-			message.WriteString("\n\n---\n\n")
-
-			message.WriteString(fmt.Sprintf("Parent: %s\n\n", escapeMarkdown(post.Reply.User.Name)))
-
-			if post.Reply.Cw != nil {
-				message.WriteString(fmt.Sprintf("CW: %s\n\n", escapeMarkdown(*post.Reply.Cw)))
-			} else if post.Reply.Text != nil {
-				message.WriteString(escapeMarkdown(*post.Reply.Text))
-			} else {
-				message.WriteString("<missing content>")
-			}
-
-			message.WriteString("\n\n---\n\n")
-		}
-
-		if post.Renote != nil {
-			message.WriteString("\n\n---\n\n")
-
-			message.WriteString(fmt.Sprintf("Renote of: %s\n\n", escapeMarkdown(post.Renote.User.Name)))
-
-			if post.Renote.Cw != nil {
-				message.WriteString(fmt.Sprintf("CW: %s\n\n", escapeMarkdown(*post.Renote.Cw)))
-			} else if post.Renote.Text != nil {
-				message.WriteString(escapeMarkdown(*post.Renote.Text))
-			} else {
-				message.WriteString("<missing content>")
-			}
-
-			message.WriteString("\n\n---\n\n")
-		}
-
-		msg := plugin.Message{
-			Title:    title,
-			Message:  message.String(),
-			Priority: 0,
-			Extras: map[string]interface{}{
-				"misskey::payload": map[string]interface{}{
-					"note": post,
-				},
-				"client::display": map[string]interface{}{
-					"contentType": "text/markdown",
-				},
-			},
-		}
-
-		if url != "" {
-			msg.Extras["client::notification"] = map[string]interface{}{
-				"click": map[string]interface{}{
-					"url": url,
-				},
-			}
-		}
-
-		if err := c.msgHandler.SendMessage(msg); err != nil {
-			ctx.JSON(500, gin.H{"error": "Failed to send message"})
-			return
-		}
-	})
-
-	g.HEAD("/push/misskey/:slug/follow", func(ctx *gin.Context) {
-		ctx.SetAccepted("application/json")
-		ctx.Status(200)
-	})
-
-	g.GET("/push/misskey/:slug/follow", func(ctx *gin.Context) {
-		ctx.JSON(405, gin.H{"error": "Method Not Allowed"})
-	})
-
-	g.POST("/push/misskey/:slug/follow", func(ctx *gin.Context) {
-
-		secret := ctx.GetHeader("X-Misskey-Hook-Secret")
-
-		if secret == "" {
-			ctx.JSON(400, gin.H{"error": "Missing secret"})
-			return
-		}
-
-		src := c.config.GetSource(ctx.Param("slug"))
-
-		if src == nil || src.Secret == DummySecret || src.Secret != secret {
-			ctx.JSON(404, gin.H{"error": "Source not found or secret mismatch"})
-			return
-		}
-
-		var payload WebhookPayload[WebhookUser]
-
-		if err := ctx.BindJSON(&payload); err != nil {
-			ctx.JSON(400, gin.H{"error": "Invalid JSON"})
-			return
-		}
-
-		user := payload.Body
-
-		title := fmt.Sprintf("[%s] [%s] %s", payload.Type, src.Name, user.Name)
-
-		var url string
-		if payload.Server != "" {
-			url = strings.TrimRight(payload.Server, "/") + "/users/" + user.ID
-		}
-
-		var message bytes.Buffer
-
-		message.WriteString(fmt.Sprintf("User: %s (%s)\n\n", escapeMarkdown(user.Name), escapeMarkdown(user.Username)))
-
-		msg := plugin.Message{
-			Title:    title,
-			Message:  message.String(),
-			Priority: 0,
-			Extras: map[string]interface{}{
-				"misskey::payload": map[string]interface{}{
-					"user": user,
-				},
-				"client::display": map[string]interface{}{
-					"contentType": "text/markdown",
-				},
-			},
-		}
-
-		if url != "" {
-			msg.Extras["client::notification"] = map[string]interface{}{
-				"click": map[string]interface{}{
-					"url": url,
-				},
-			}
-		}
-
-		if err := c.msgHandler.SendMessage(msg); err != nil {
-			ctx.JSON(500, gin.H{"error": "Failed to send message"})
+			ctx.JSON(400, gin.H{"error": "Invalid payload, unknown body"})
 			return
 		}
 	})
@@ -356,7 +333,7 @@ Enabled: {{ .State.Enabled }}
 ### **{{ .Name }}** ({{ .Slug }})
 
 - Secret: {{ .Secret }}
-- URL: [{{ .URL }}]({{ .URL }}) (Append /abuse to receive abuse reports, /follow to receive user follow events)
+- URL: [{{ .URL }}]({{ .URL }}) (Append /abuse to receive abuse reports)
 
 {{ end }}
 		`)))
