@@ -77,6 +77,13 @@ func escapeMarkdown(s string) string {
 // RegisterWebhook implements plugin.Webhooker.
 func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup) {
 	c.basePath = basePath
+	g.HEAD("/push/misskey/:slug", func(ctx *gin.Context) {
+		ctx.SetAccepted("application/json")
+		ctx.Status(200)
+	})
+	g.GET("/push/misskey/:slug", func(ctx *gin.Context) {
+		ctx.JSON(405, gin.H{"error": "Method Not Allowed"})
+	})
 	g.POST("/push/misskey/:slug", func(ctx *gin.Context) {
 
 		secret := ctx.GetHeader("X-Misskey-Hook-Secret")
@@ -155,6 +162,13 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 		}
 	})
 
+	g.HEAD("/push/misskey/:slug/abuse", func(ctx *gin.Context) {
+		ctx.SetAccepted("application/json")
+		ctx.Status(200)
+	})
+	g.GET("/push/misskey/:slug/abuse", func(ctx *gin.Context) {
+		ctx.JSON(405, gin.H{"error": "Method Not Allowed"})
+	})
 	g.POST("/push/misskey/:slug/abuse", func(ctx *gin.Context) {
 
 		secret := ctx.GetHeader("X-Misskey-Hook-Secret")
