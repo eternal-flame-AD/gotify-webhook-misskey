@@ -136,7 +136,7 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 
 		msg := plugin.Message{
 			Title:    title,
-			Message:  *post.Text,
+			Message:  message.String(),
 			Priority: 0,
 			Extras: map[string]interface{}{
 				"misskey::payload": map[string]interface{}{
