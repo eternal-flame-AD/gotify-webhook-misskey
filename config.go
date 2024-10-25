@@ -13,18 +13,20 @@ type Config struct {
 }
 
 type SourceConfig struct {
-	Slug   string `yaml:"slug"`
-	Name   string `yaml:"name"`
-	Secret string `yaml:"secret"`
+	Slug     string `yaml:"slug"`
+	Name     string `yaml:"name"`
+	Secret   string `yaml:"secret"`
+	Priority int    `yaml:"priority"`
 }
 
 func CreateDefaultConfig() Config {
 	return Config{
 		Sources: []SourceConfig{
 			{
-				Slug:   "me:me.com",
-				Name:   "Notification for @me@me.com",
-				Secret: DummySecret,
+				Slug:     "me:me.com",
+				Name:     "Notification for @me@me.com",
+				Secret:   DummySecret,
+				Priority: 4,
 			},
 		},
 	}
