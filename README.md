@@ -2,6 +2,8 @@
 
 Gotify Misskey Webhook Bridge (Alpha stage)
 
+Receive Misskey Webhooks and forward them to Gotify. Useful for when you do not want to use the PWA or have multiple accounts on different instances.
+
 ![Screenshot](assets/screenshot.png)
 
 ## Usage
@@ -13,9 +15,11 @@ sources:
 - slug: yumechi-no-kuni
   name: mi.yumechi.jp
   secret: xxxx
+  priority: 7
 - slug: misskey-io
   name: misskey.io
   secret: xxxx
+  priority: 5
 ```
 
 2. Copy the Webhook URL and secret to Misskey (Settings -> Webhook) Set the WebHook URL to receive any of 'replied to', 'renoted', 'mentioned', 'followed' (reactions seem to have bugs upstream and nothing is received)
