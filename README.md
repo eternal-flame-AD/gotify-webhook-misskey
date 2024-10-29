@@ -22,7 +22,7 @@ sources:
   priority: 5
 ```
 
-2. Copy the Webhook URL and secret to Misskey (Settings -> Webhook) Set the WebHook URL to receive any of 'replied to', 'renoted', 'mentioned', 'followed' (reactions seem to have bugs upstream and nothing is received)
+2. Copy the Webhook URL and secret to Misskey (Settings -> Webhook) Set the WebHook URL to receive any of 'replied to', 'renoted', 'mentioned', 'followed' (reactions seem to have bugs upstream and nothing is received, a [PR](https://github.com/misskey-dev/misskey/pull/14863) has been submitted upstream)
 
 3. Done! The on-click URL for notifications will also be populated when there is an User or Note associated with the notification.
 

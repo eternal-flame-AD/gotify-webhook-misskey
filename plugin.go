@@ -117,7 +117,14 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 		if payload.Body.Note != nil {
 			post := payload.Body.Note
 
-			title := fmt.Sprintf("[%s] [%s] %s: %s", payload.Type, src.Name, post.User.UserNameFull(), truncateString(post.Text, 50))
+			var content string
+			if payload.Body.Reaction != nil {
+				content = payload.Body.Reaction.Reaction
+			} else {
+				content = post.Text
+			}
+
+			title := fmt.Sprintf("[%s] [%s] %s: %s", payload.Type, src.Name, post.User.UserNameFull(), truncateString(content, 50))
 
 			var url string
 			if payload.Server != "" {
@@ -126,7 +133,12 @@ func (c *MisskeyHookPlugin) RegisterWebhook(basePath string, g *gin.RouterGroup)
 
 			var message bytes.Buffer
 
-			message.WriteString(fmt.Sprintf("User: %s (%s)\n\n", escapeMarkdown(post.User.Name), escapeMarkdown(post.User.Username)))
+			if payload.Body.Reaction != nil {
+				message.WriteString(fmt.Sprintf("Reaction from %s (%s): %s\n\n", escapeMarkdown(payload.Body.Reaction.User.Name),
+					escapeMarkdown(payload.Body.Reaction.User.Username), escapeMarkdown(payload.Body.Reaction.Reaction)))
+			}
+
+			message.WriteString(fmt.Sprintf("Post User: %s (%s)\n\n", escapeMarkdown(post.User.Name), escapeMarkdown(post.User.Username)))
 
 			if post.Cw != nil {
 				message.WriteString(fmt.Sprintf("CW: %s\n\n", escapeMarkdown(*post.Cw)))

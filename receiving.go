@@ -35,8 +35,15 @@ type WebhookPayload[T any] struct {
 }
 
 type UserPayload struct {
-	User *WebhookUser                   `json:"user,omitempty"`
-	Note *NoteRelatedWebhookPayloadBody `json:"note,omitempty"`
+	User     *WebhookUser                   `json:"user,omitempty"`
+	Note     *NoteRelatedWebhookPayloadBody `json:"note,omitempty"`
+	Reaction *ReactionPayload               `json:"reaction,omitempty"`
+}
+
+type ReactionPayload struct {
+	ID       string      `json:"id,omitempty"`
+	User     WebhookUser `json:"user,omitempty"`
+	Reaction string      `json:"reaction,omitempty"`
 }
 
 func (p *WebhookPayload[T]) CreatedAtUnix() int64 {
